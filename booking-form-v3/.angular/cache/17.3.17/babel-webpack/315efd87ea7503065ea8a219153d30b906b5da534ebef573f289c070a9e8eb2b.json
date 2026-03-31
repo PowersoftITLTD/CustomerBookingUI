@@ -1,1 +1,0 @@
-{"ast":null,"code":"export const environment = {\n  production: true,\n  devSuiteletUrl: '',\n  // This value is irrelevant in production — the Suitelet injects\n  // the real base href and __NS_CONFIG__ into index.html at request time.\n  fileCabinetBaseUrl: ''\n};","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}
