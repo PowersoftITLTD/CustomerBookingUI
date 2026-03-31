@@ -1,0 +1,44 @@
+.sig-pad-wrap {
+  display: flex; flex-direction: column;
+  border: 1.5px solid var(--border); border-radius: var(--r);
+  background: #FDFAF6; overflow: hidden; transition: border-color .2s;
+  &:hover      { border-color: var(--gold2); }
+  &.signed     { border-color: var(--gold); background: #FAF7F0; }
+  &.sig-error  { border-color: var(--error); }
+}
+.sig-label {
+  font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted); padding: 7px 10px 4px; border-bottom: 1px solid var(--line);
+  .sig-req { color: var(--error); }
+}
+.sig-canvas-outer { position: relative; width: 100%; min-height: 100px; }
+.sig-canvas {
+  display: block; width: 100%; height: 100px;
+  cursor: crosshair;
+  touch-action: none; /* iPad: prevents page scroll while signing */
+}
+.sig-placeholder {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px;
+  pointer-events: none; color: var(--border);
+  svg { width: 18px; height: 18px; }
+  span { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; }
+}
+.sig-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 10px; border-top: 1px solid var(--line);
+  background: var(--warm); min-height: 28px;
+}
+.sig-status {
+  font-size: 9px; letter-spacing: 1px; color: var(--muted);
+  &.ok  { color: var(--gold); font-weight: 600; }
+  &.err { color: var(--error); font-weight: 600; }
+}
+.sig-clear-btn {
+  font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--muted); background: none; border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: var(--r); cursor: pointer; transition: all .15s;
+  &:hover { border-color: var(--error); color: var(--error); }
+}
+
+

@@ -1,0 +1,430 @@
+<div *ngIf="form">
+
+  <!-- ══ PART A — FLAT DETAILS ══ -->
+  <div class="part-head"><span class="part-num">A</span><span class="part-title">Details of Flat Purchased</span></div>
+  <div class="fb">
+    <div class="g3 mb">
+      <div class="f"><label>Project Name</label><input type="text" [value]="form.flat.projectName" (input)="patchFlat('projectName',$any($event.target).value)" placeholder="25 South"/></div>
+      <div class="f"><label>Wing / Tower</label><input type="text" [value]="form.flat.wing" (input)="patchFlat('wing',$any($event.target).value)"/></div>
+      <div class="f"><label>Flat No.</label><input type="text" [value]="form.flat.flatNo" (input)="patchFlat('flatNo',$any($event.target).value)"/></div>
+      <div class="f"><label>Floor</label><input type="text" [value]="form.flat.floor" (input)="patchFlat('floor',$any($event.target).value)"/></div>
+      <div class="f">
+        <label>Configuration</label>
+        <select [value]="form.flat.configuration" (change)="patchFlat('configuration',$any($event.target).value)">
+          <option value="">Select</option>
+          <option *ngFor="let c of configurations" [value]="c">{{c}}</option>
+        </select>
+      </div>
+      <div class="f"><label>BHK Type</label><input type="text" [value]="form.flat.bhkType" (input)="patchFlat('bhkType',$any($event.target).value)"/></div>
+      <div class="f"><label>RERA Carpet Area (Sq.Mt.)</label><input type="text" [value]="form.flat.reraCarpet" (input)="patchFlat('reraCarpet',$any($event.target).value)"/></div>
+      <div class="f"><label>Along With Area (Sq.Mt.)</label><input type="text" [value]="form.flat.alongWithArea" (input)="patchFlat('alongWithArea',$any($event.target).value)"/></div>
+      <div class="f"><label>Car Parking No.</label><input type="text" [value]="form.flat.cpNo" (input)="patchFlat('cpNo',$any($event.target).value)"/></div>
+      <div class="f"><label>Car Parking Level</label><input type="text" [value]="form.flat.cpLevel" (input)="patchFlat('cpLevel',$any($event.target).value)"/></div>
+      <div class="f">
+        <label>Car Parking Type</label>
+        <select [value]="form.flat.cpType" (change)="patchFlat('cpType',$any($event.target).value)">
+          <option value="">Select</option>
+          <option *ngFor="let t of cpTypes" [value]="t">{{t}}</option>
+        </select>
+      </div>
+      <div class="f">
+        <label>End Use</label>
+        <div class="rg">
+          <div class="rp" [class.on]="form.flat.endUse==='Self Use'"  (click)="patchFlat('endUse','Self Use')">Self Use</div>
+          <div class="rp" [class.on]="form.flat.endUse==='Investment'" (click)="patchFlat('endUse','Investment')">Investment</div>
+        </div>
+      </div>
+      <div class="f span2"><label>Sale Value (Figures)</label><input type="text" [value]="form.flat.saleValue" (input)="patchFlat('saleValue',$any($event.target).value)" placeholder="₹"/></div>
+      <div class="f span3"><label>Sale Value (Words)</label><input type="text" [value]="form.flat.saleValueWords" (input)="patchFlat('saleValueWords',$any($event.target).value)"/></div>
+    </div>
+  </div>
+
+  <!-- ══ PART B — APPLICANT DETAILS ══ -->
+  <div class="part-head"><span class="part-num">B</span><span class="part-title">Applicant Details</span></div>
+  <div class="fb">
+    <div *ngFor="let app of form.applicants; let i = index; trackBy: trackByIndex" class="applicant-row mb">
+      <div class="applicant-header">
+        <span class="app-index">Applicant {{i+1}}</span>
+        <div class="g4" style="flex:1">
+          <div class="f">
+            <select
+              [id]="'applicant-'+i+'-title'"
+              [value]="app.title"
+              [class.error]="isApplicantFieldInvalid(i,'title')"
+              (change)="patchApplicant(i,'title',$any($event.target).value)">
+              <option value="">Title</option>
+              <option *ngFor="let t of titles" [value]="t">{{t}}</option>
+            </select>
+            <div class="field-error" *ngIf="isApplicantFieldInvalid(i,'title')">Title is required.</div>
+          </div>
+          <div class="f">
+            <input
+              type="text"
+              [id]="'applicant-'+i+'-firstName'"
+              [value]="app.firstName"
+              [class.error]="isApplicantFieldInvalid(i,'firstName')"
+              (input)="patchApplicant(i,'firstName',$any($event.target).value)"
+              placeholder="First Name"/>
+            <div class="field-error" *ngIf="isApplicantFieldInvalid(i,'firstName')">First name is required.</div>
+          </div>
+          <div class="f"><input type="text" [value]="app.middleName" (input)="patchApplicant(i,'middleName',$any($event.target).value)" placeholder="Middle Name"/></div>
+          <div class="f">
+            <input
+              type="text"
+              [id]="'applicant-'+i+'-lastName'"
+              [value]="app.lastName"
+              [class.error]="isApplicantFieldInvalid(i,'lastName')"
+              (input)="patchApplicant(i,'lastName',$any($event.target).value)"
+              placeholder="Last Name"/>
+            <div class="field-error" *ngIf="isApplicantFieldInvalid(i,'lastName')">Last name is required.</div>
+          </div>
+        </div>
+        <button
+          *ngIf="i>0"
+          class="expand-btn"
+          type="button"
+          style="margin-left:8px"
+          (click)="removeApplicant(i,$event)"
+        >
+          ✕ Remove
+        </button>
+      </div>
+      <div class="applicant-details">
+        <div class="g3">
+          <div class="f" *ngIf="i>0"><label>Relation to Applicant 1</label><input type="text" [value]="app.relation" (input)="patchApplicant(i,'relation',$any($event.target).value)"/></div>
+          <div class="f">
+            <label>Date of Birth</label>
+            <input
+              type="date"
+              [id]="'applicant-'+i+'-dob'"
+              [value]="app.dob"
+              (change)="patchApplicant(i,'dob',$any($event.target).value)"/>
+          </div>
+          <div class="f"><label>Anniversary</label><input type="date" [value]="app.anniversary" (change)="patchApplicant(i,'anniversary',$any($event.target).value)"/></div>
+          <div class="f">
+            <label>PAN</label>
+            <input
+              type="text"
+              [id]="'applicant-'+i+'-pan'"
+              [value]="app.pan"
+              [class.error]="isApplicantFieldInvalid(i,'pan')"
+              (input)="onPanInput(i,$any($event.target).value)"
+              (blur)="onPanBlur(i)"
+              style="text-transform:uppercase"
+              maxlength="10"/>
+            <div class="field-error" *ngIf="isApplicantFieldInvalid(i,'pan')">Please enter a valid PAN number.</div>
+          </div>
+          <div class="f"><label>Occupation</label><input type="text" [value]="app.occupation" (input)="patchApplicant(i,'occupation',$any($event.target).value)"/></div>
+        </div>
+      </div>
+    </div>
+    <div class="note" *ngIf="applicantAccessWarning" style="margin-top:10px;margin-bottom:0">
+      {{ applicantAccessWarning }}
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:14px" *ngIf="form.applicants.length < 4">
+      <button
+        class="btn-back"
+        type="button"
+        [disabled]="!isApplicantComplete(form.applicants.length - 1)"
+        (click)="addNextApplicant()">
+        Add Applicant
+      </button>
+    </div>
+    <hr/>
+    <div class="g2 mb">
+      <div class="f">
+        <label>Residence Address <span class="req">*</span></label>
+          <textarea  id="residential-address"
+          [value]="form.residenceAddress" [class.error]="showErrors && (!form.residenceAddress || !form.residenceAddress.trim())" (input)="patch('residenceAddress',$any($event.target).value)"></textarea>
+          <div class="field-error" *ngIf="showErrors && (!form.residenceAddress || !form.residenceAddress.trim())">Residence address is required.</div>
+        <!-- <textarea
+            id="residential-address"
+            [(ngModel)]="form.residenceAddress"
+            [class.error]="showErrors && (!form.residenceAddress || !form.residenceAddress.trim())">
+        </textarea> -->
+      </div>
+      <div class="f"><label>Correspondence Address</label><textarea [value]="form.correspondenceAddress" (input)="patch('correspondenceAddress',$any($event.target).value)"></textarea></div>
+    </div>
+    <div class="f mb">
+      <label>Residence Ownership</label>
+      <div class="rg">
+        <div class="rp" *ngFor="let o of ['Owned','Rented','Parental','Joint Family']" [class.on]="form.ownership===o" (click)="patch('ownership',o)">{{o}}</div>
+      </div>
+    </div>
+    <div class="f mb">
+      <label>Any Other Property?</label>
+      <div class="rg">
+        <div class="rp" [class.on]="form.otherProp==='Yes'" (click)="patch('otherProp','Yes')">Yes</div>
+        <div class="rp" [class.on]="form.otherProp==='No'"  (click)="patch('otherProp','No')">No</div>
+      </div>
+    </div>
+    <div class="f mb" *ngIf="form.otherProp==='Yes'">
+      <label>City / Location</label>
+      <input type="text" [value]="form.otherPropCity" (input)="patch('otherPropCity',$any($event.target).value)"/>
+    </div>
+    <div class="g3 mb">
+      <div class="f">
+        <label>Profession</label>
+        <div class="rg">
+          <div class="rp" *ngFor="let p of ['Business','Service','Professional']" [class.on]="form.profession===p" (click)="patch('profession',p)">{{p}}</div>
+        </div>
+      </div>
+      <div class="f"><label>Organization</label><input type="text" [value]="form.organization" (input)="patch('organization',$any($event.target).value)"/></div>
+      <div class="f"><label>Designation</label><input type="text" [value]="form.designation"   (input)="patch('designation',$any($event.target).value)"/></div>
+    </div>
+    <div class="g3 mb">
+      <!-- ── MOBILE — duplicate check on input ── -->
+      <div class="f mobile-field-wrap">
+        <label>Mobile <span class="req">*</span></label>
+        <div class="mobile-input-row">
+          <input
+            type="text"
+            inputmode="numeric"
+            [value]="form.mobile"
+            id="residential-mobile"
+            (input)="onMobileInput($any($event.target).value)"
+            (blur)="onMobileBlur()"
+            [class.error]="showMobileValidationError()"
+            [class.input-checking]="mobileCheckState === 'checking'"
+            [class.input-ok]="mobileCheckState === 'ok'"
+            [class.input-error]="mobileCheckState === 'duplicate'"
+            placeholder="10-digit mobile number"
+            maxlength="10"
+          />
+          <!-- Inline status icon -->
+          <span class="mobile-status-icon" *ngIf="mobileCheckState !== 'idle'">
+            <span *ngIf="mobileCheckState === 'checking'" class="spin-icon" title="Checking…">⟳</span>
+            <span *ngIf="mobileCheckState === 'ok'"       class="ok-icon"   title="Available">✓</span>
+            <span *ngIf="mobileCheckState === 'duplicate'" class="err-icon"  title="Duplicate">✕</span>
+          </span>
+        </div>
+        <div class="field-error" *ngIf="showMobileValidationError()">Please enter a valid 10-digit mobile number.</div>
+
+        <!-- Checking hint -->
+        <div class="mobile-hint checking" *ngIf="mobileCheckState === 'checking'">
+          Checking NetSuite…
+        </div>
+
+        <!-- OK hint -->
+        <div class="mobile-hint ok" *ngIf="mobileCheckState === 'ok'">
+          ✓ No existing customer with this number
+        </div>
+
+        <!-- Duplicate warning — shows all matching customers -->
+        <div class="mobile-duplicate-warning" *ngIf="mobileCheckState === 'duplicate'">
+          <div class="dup-header">
+            ⚠ This mobile number already exists in NetSuite
+          </div>
+          <div class="dup-match" *ngFor="let m of mobileDuplicateMatches">
+            <span class="dup-name">{{ m.customerName }}</span>
+            <span class="dup-id">(ID: {{ m.customerId }})</span>
+          </div>
+          <div class="dup-note">
+            You can still proceed — this will create a new booking linked to a new customer record.
+          </div>
+        </div>
+      </div>
+
+      <div class="f"><label>Residence Phone</label><input type="tel" [value]="form.residencePhone"  (input)="patch('residencePhone',$any($event.target).value)"/></div>
+      <div class="f">
+        <label>Email <span class="req">*</span></label>
+        <input
+          id="residential-email"
+          type="email"
+          [value]="form.email"
+          [class.error]="showEmailValidationError()"
+          (input)="onEmailInput($any($event.target).value)"
+          (blur)="onEmailBlur()"/>
+        <div class="field-error" *ngIf="showEmailValidationError()">Please enter a valid email address.</div>
+      </div>
+    </div>
+    <div class="f mb">
+      <label>Residential Status</label>
+      <div class="rg">
+        <div class="rp" *ngFor="let s of ['Resident Indian','NRI','PIO','OCI']" [class.on]="form.residentialStatus===s" (click)="patch('residentialStatus',s)">{{s}}</div>
+      </div>
+    </div>
+    <div class="g3 mb" *ngIf="['NRI','PIO','OCI'].includes(form.residentialStatus)">
+      <div class="f">
+        <label>Country</label>
+        <input
+          id="nri-country"
+          type="text"
+          [value]="form.nriCountry"
+          [class.error]="isNriFieldInvalid('nriCountry')"
+          (input)="onNriInput('nriCountry',$any($event.target).value)"
+          (blur)="onNriBlur('nriCountry')"/>
+        <div class="field-error" *ngIf="isNriFieldInvalid('nriCountry')">Country is required.</div>
+      </div>
+      <div class="f">
+        <label>Local Contact No.</label>
+        <input
+          id="nri-localContactNo"
+          type="tel"
+          [value]="form.localContactNo"
+          [class.error]="isNriFieldInvalid('localContactNo')"
+          (input)="onNriInput('localContactNo',$any($event.target).value)"
+          (blur)="onNriBlur('localContactNo')"/>
+        <div class="field-error" *ngIf="isNriFieldInvalid('localContactNo')">Local contact number is required.</div>
+      </div>
+      <div class="f">
+        <label>Local Contact Person</label>
+        <input
+          id="nri-localContactPerson"
+          type="text"
+          [value]="form.localContactPerson"
+          [class.error]="isNriFieldInvalid('localContactPerson')"
+          (input)="onNriInput('localContactPerson',$any($event.target).value)"
+          (blur)="onNriBlur('localContactPerson')"/>
+        <div class="field-error" *ngIf="isNriFieldInvalid('localContactPerson')">Local contact person is required.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PART D — FUNDING ══ -->
+  <div class="part-head"><span class="part-num">D</span><span class="part-title">Source of Funding</span></div>
+  <div class="fb">
+    <div class="f mb">
+      <label>Home Loan Opted</label>
+      <div class="rg">
+        <div class="rp" *ngFor="let l of ['Yes','No','Not Yet Decided']" [class.on]="form.funding.loanOpted===l" (click)="patchFunding('loanOpted',l)">{{l}}</div>
+      </div>
+    </div>
+    <div class="g3" *ngIf="form.funding.loanOpted==='Yes'">
+<<<<<<< Updated upstream
+      <div class="f">
+        <label>Bank / FI Name</label>
+        <input
+          id="funding-bankName"
+          type="text"
+          [value]="form.funding.bankName"
+          [class.error]="isFundingFieldInvalid('bankName')"
+          (input)="onFundingInput('bankName',$any($event.target).value)"
+          (blur)="onFundingBlur('bankName')"/>
+        <div class="field-error" *ngIf="isFundingFieldInvalid('bankName')">Bank / FI Name is required.</div>
+      </div>
+      <div class="f">
+        <label>Own Contribution %</label>
+        <input
+          id="funding-ownContrib"
+          type="text"
+          [value]="form.funding.ownContrib"
+          [class.error]="isFundingFieldInvalid('ownContrib')"
+          (input)="onFundingInput('ownContrib',$any($event.target).value)"
+          (blur)="onFundingBlur('ownContrib')"/>
+        <div class="field-error" *ngIf="isFundingFieldInvalid('ownContrib')">Own Contribution % is required.</div>
+      </div>
+      <div class="f">
+        <label>Home Loan %</label>
+        <input
+          id="funding-homeLoan"
+          type="text"
+          [value]="form.funding.homeLoan"
+          [class.error]="isFundingFieldInvalid('homeLoan')"
+          (input)="onFundingInput('homeLoan',$any($event.target).value)"
+          (blur)="onFundingBlur('homeLoan')"/>
+        <div class="field-error" *ngIf="isFundingFieldInvalid('homeLoan')">Home Loan % is required.</div>
+      </div>
+=======
+      <div class="f"><label>Bank / FI Name</label><input id="bank-name" type="text" [value]="form.funding.bankName"   (input)="patchFunding('bankName',$any($event.target).value)"/></div>
+      <div class="f"><label>Own Contribution %</label><input id="home-loan" type="text" [value]="form.funding.ownContrib" (input)="patchFunding('ownContrib',$any($event.target).value)"/></div>
+      <div class="f"><label>Home Loan %</label><input id="own-contribution" type="text" [value]="form.funding.homeLoan"      (input)="patchFunding('homeLoan',$any($event.target).value)"/></div>
+>>>>>>> Stashed changes
+    </div>
+  </div>
+
+  <!-- ══ PART E — SOURCE ══ -->
+  <div class="part-head"><span class="part-num">E</span><span class="part-title">Source of Booking</span></div>
+  <div class="fb">
+    <div class="cg">
+      <div class="cp" *ngFor="let s of sourceOptions" [class.on]="isSourceOn(s)" (click)="toggleSource(s)">{{s}}</div>
+    </div>
+    <div class="f" style="margin-top:12px"><label>Others</label><input type="text" [value]="form.sourceOther" (input)="patch('sourceOther',$any($event.target).value)"/></div>
+  </div>
+
+  <!-- ══ PART F — CHANNEL PARTNER ══ -->
+  <div class="part-head"><span class="part-num">F</span><span class="part-title">Channel Partner Details</span></div>
+  <div class="fb">
+    <div class="f mb">
+      <label>Channel Partner Applicable?</label>
+      <div class="rg">
+        <div class="rp" [class.on]="form.channelPartner.applicable"  (click)="patchCP('applicable',true)">Yes</div>
+        <div class="rp" [class.on]="!form.channelPartner.applicable" (click)="patchCP('applicable',false)">No</div>
+      </div>
+    </div>
+    <div class="g3" *ngIf="form.channelPartner.applicable">
+      <div class="f"><label>Name</label><input  id="cp-name"  type="text" [class.error]="showErrors && form.channelPartner.applicable && !form.channelPartner.name"  [value]="form.channelPartner.name"     (input)="patchCP('name',$any($event.target).value)"/></div>
+      <div class="f"><label>Mobile</label><input id="cp-mobile" type="number" [class.error]="showErrors && form.channelPartner.applicable && !form.channelPartner.mobile" [value]="form.channelPartner.mobile"   (input)="patchCP('mobile',$any($event.target).value)"/></div>
+      <div class="f"><label>Email</label><input id="cp-email" type="email" [class.error]="showErrors && form.channelPartner.applicable && !form.channelPartner.email" [value]="form.channelPartner.email"    (input)="patchCP('email',$any($event.target).value)"/></div>
+      <div class="f"><label>RERA No.</label><input id="cp-rera"  type="text"  [class.error]="showErrors && form.channelPartner.applicable && !form.channelPartner.rera"[value]="form.channelPartner.rera"   (input)="patchCP('rera',$any($event.target).value)"/></div>
+      <div class="f"><label>GST No.</label><input id="cp-gst" type="text"  [class.error]="showErrors && form.channelPartner.applicable && !form.channelPartner.gst" [value]="form.channelPartner.gst"     (input)="patchCP('gst',$any($event.target).value)"/></div>
+      <div class="f"><label>Brokerage %</label><input id="cp-brokerage" type="text" [class.error]="showErrors && form.channelPartner.applicable && !form.channelPartner.brokerage" [value]="form.channelPartner.brokerage" (input)="patchCP('brokerage',$any($event.target).value)"/></div>
+    </div>
+  </div>
+
+  <!-- ══ PART H — BOOKING PAYMENT ══ -->
+  <div class="part-head"><span class="part-num">H</span><span class="part-title">Booking Payment Details</span></div>
+  <div class="fb">
+    <div class="g3">
+      <div class="f"><label>Cheque / UTR No.</label><input type="text" [value]="form.payment.chequeNo"    (input)="patchPayment('chequeNo',$any($event.target).value)"/></div>
+      <div class="f"><label>Date</label><input type="date" [value]="form.payment.dated"                   (change)="patchPayment('dated',$any($event.target).value)"/></div>
+      <div class="f"><label>Amount (Figures)</label><input type="text" [value]="form.payment.amount"      (input)="patchPayment('amount',$any($event.target).value)" placeholder="₹"/></div>
+      <div class="f span3"><label>Amount (Words)</label><input type="text" [value]="form.payment.amountWords" (input)="patchPayment('amountWords',$any($event.target).value)"/></div>
+      <div class="f span3"><label>Drawn On (Bank)</label><input type="text" [value]="form.payment.drawnOn"    (input)="patchPayment('drawnOn',$any($event.target).value)"/></div>
+      <div class="f span3"><label>Cost Sheet Ref.</label><input type="text" [value]="form.payment.costSheetRef" (input)="patchPayment('costSheetRef',$any($event.target).value)"/></div>
+    </div>
+  </div>
+
+  <!-- ══ PHOTOGRAPHS & SIGNATURES ══ -->
+  <div class="part-head"><span class="part-num">📷</span><span class="part-title">Photograph &amp; Signature</span></div>
+  <div class="fb">
+    <p class="sub-note" style="margin-bottom:18px">
+      Upload a passport-size photograph for each applicant. Sign in the box below using finger, stylus, or mouse.
+    </p>
+    <div class="photo-sig-grid" id="photo-sig-section">
+      <div class="photo-sig-col" *ngFor="let app of form.applicants; let i = index; trackBy: trackByIndex">
+        <app-photo-upload
+          [label]="'Applicant ' + (i+1)"
+          [sublabel]="i===0 ? '(Primary)' : ''"
+          [mandatory]="i===0"
+          (photoSelected)="onPhotoSelected(i,$event)"
+          (photoCleared)="onPhotoCleared(i)">
+        </app-photo-upload>
+        <div class="field-error" style="margin-top:4px"
+             *ngIf="i===0 && showErrors && !form.photos?.['applicant1']">
+          Applicant 1 Photograph is required.
+        </div>
+        <app-signature-pad
+          [label]="'Signature ' + (i+1)"
+          [mandatory]="i===0"
+          (signed)="onSigned('applicant'+(i+1),$event)"
+          (cleared)="onSignatureCleared('applicant'+(i+1))">
+        </app-signature-pad>
+        <div class="field-error" style="margin-top:4px"
+             *ngIf="i===0 && showErrors && !form.signatures?.['applicant1']">
+          Applicant 1 Signature is required.
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:24px; max-width:280px" *ngIf="form.channelPartner.applicable">
+      <p class="sub-note" style="margin-bottom:10px">Channel Partner / Witness Signature</p>
+      <app-signature-pad
+        label="Channel Partner / Witness"
+        [mandatory]="false"
+        (signed)="onSigned('channelPartner',$event)"
+        (cleared)="onSignatureCleared('channelPartner')">
+      </app-signature-pad>
+    </div>
+  </div>
+
+  <!-- ══ T&C ══ -->
+  <div class="part-head"><span class="part-num">T&amp;C</span><span class="part-title">Terms &amp; Conditions</span></div>
+  <div class="fb">
+    <div class="note">Please read all Terms &amp; Conditions before accepting. Ticking below confirms you have read, understood and agree to all 46 clauses.</div>
+    <div class="tnc-row" (click)="toggleTnc()">
+      <div class="tnc-box" [class.checked]="form.tncAccepted"><span *ngIf="form.tncAccepted">✓</span></div>
+      <div class="tnc-text">I / We have read, understood and agree to be bound by all Terms &amp; Conditions forming part of this Booking Form.</div>
+    </div>
+  </div>
+
+</div>

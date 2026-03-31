@@ -1,0 +1,159 @@
+<div *ngIf="form">
+  <div class="part-head"><span class="part-num">III</span><span class="part-title">Help Us Know You Better</span></div>
+  <div class="fb">
+
+    <!-- Q1 -->
+    <div class="q-block mb">
+      <div class="q-label"><span class="q-num">1</span>How many people in your household?</div>
+      <div class="rg">
+        <div class="rp" *ngFor="let n of ['1','2','3','4','5','6+']" [class.on]="form.householdCount===n" (click)="patch('householdCount',n)">{{n}}</div>
+      </div>
+    </div>
+
+    <!-- Q2 Family Table -->
+    <div class="q-block mb">
+      <div class="q-label"><span class="q-num">2</span>Family Members</div>
+      <div style="overflow-x:auto">
+        <table class="kyc-table">
+          <thead>
+            <tr>
+              <th>Member</th><th>Name</th><th>Age</th><th>Living Together</th>
+              <th>Marital Status</th><th>Occupation</th><th>Place of Work / School</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of form.family; let i = index; trackBy: trackByIndex"
+                [class.self-row]="m.relation === 'Self'">
+              <td class="app-label">
+                {{m.relation}}
+                <span class="req" *ngIf="m.relation === 'Self'">*</span>
+              </td>
+              <td>
+                <input type="text"
+                  [value]="m.name"
+                  [class.error]="m.relation === 'Self' && isSelfFieldInvalid('name')"
+                  (input)="patchFamily(i,'name',$any($event.target).value)"/>
+              </td>
+              <td>
+                <input type="text"
+                  [value]="m.age"
+                  [class.error]="m.relation === 'Self' && isSelfFieldInvalid('age')"
+                  (input)="patchFamily(i,'age',$any($event.target).value)"
+                  style="width:50px"/>
+              </td>
+              <td>
+                <select
+                  [value]="m.livingTogether"
+                  [class.error]="m.relation === 'Self' && isSelfFieldInvalid('livingTogether')"
+                  (change)="patchFamily(i,'livingTogether',$any($event.target).value)">
+                  <option value="">-</option><option>Yes</option><option>No</option>
+                </select>
+              </td>
+              <td>
+                <select
+                  [value]="m.maritalStatus"
+                  [class.error]="m.relation === 'Self' && isSelfFieldInvalid('maritalStatus')"
+                  (change)="patchFamily(i,'maritalStatus',$any($event.target).value)">
+                  <option value="">-</option><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option>
+                </select>
+              </td>
+              <td>
+                <input type="text"
+                  [value]="m.occupation"
+                  [class.error]="m.relation === 'Self' && isSelfFieldInvalid('occupation')"
+                  (input)="patchFamily(i,'occupation',$any($event.target).value)"/>
+              </td>
+              <td>
+                <input type="text"
+                  [value]="m.placeOfOccupation"
+                  [class.error]="m.relation === 'Self' && isSelfFieldInvalid('placeOfOccupation')"
+                  (input)="patchFamily(i,'placeOfOccupation',$any($event.target).value)"/>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+    <div class="field-error" style="margin-top:8px;font-size:13px" *ngIf="showErrors && !isSelfValid()">
+      All <strong>Self</strong> fields (Name, Age, Living Together, Marital Status, Occupation, Place of Work) are required to proceed.
+    </div>
+
+
+    <!-- Q3 Fitness -->
+    <div class="q-block mb">
+      <div class="q-label"><span class="q-num">3</span>Fitness Activities</div>
+      <div class="cg"><div class="cp" *ngFor="let o of fitnessOptions"  [class.on]="isOn('fitness',o)"  (click)="toggle('fitness',o)">{{o}}</div></div>
+      <div class="f" style="margin-top:10px"><label>Other</label><input type="text" [value]="form.fitnessOther"  (input)="patch('fitnessOther',$any($event.target).value)"/></div>
+    </div>
+
+    <!-- Q4 Sports -->
+    <div class="q-block mb">
+      <div class="q-label"><span class="q-num">4</span>Sports</div>
+      <div class="cg"><div class="cp" *ngFor="let o of sportsOptions"   [class.on]="isOn('sports',o)"   (click)="toggle('sports',o)">{{o}}</div></div>
+      <div class="f" style="margin-top:10px"><label>Other</label><input type="text" [value]="form.sportsOther"   (input)="patch('sportsOther',$any($event.target).value)"/></div>
+    </div>
+
+    <!-- Q5 Events -->
+    <div class="q-block mb">
+      <div class="q-label"><span class="q-num">5</span>Events You Enjoy</div>
+      <div class="cg"><div class="cp" *ngFor="let o of eventsOptions"   [class.on]="isOn('events',o)"   (click)="toggle('events',o)">{{o}}</div></div>
+      <div class="f" style="margin-top:10px"><label>Other</label><input type="text" [value]="form.eventsOther"   (input)="patch('eventsOther',$any($event.target).value)"/></div>
+    </div>
+
+    <!-- Q6 Music -->
+    <div class="q-block mb">
+      <div class="q-label"><span class="q-num">6</span>Music Preferences</div>
+      <div class="cg"><div class="cp" *ngFor="let o of musicOptions"    [class.on]="isOn('music',o)"    (click)="toggle('music',o)">{{o}}</div></div>
+      <div class="f" style="margin-top:10px"><label>Other</label><input type="text" [value]="form.musicOther"    (input)="patch('musicOther',$any($event.target).value)"/></div>
+    </div>
+
+    <!-- Q7 Internet -->
+    <div class="q-block mb">
+      <div class="q-label"><span class="q-num">7</span>Internet Usage</div>
+      <div class="cg"><div class="cp" *ngFor="let o of internetOptions" [class.on]="isOn('internet',o)" (click)="toggle('internet',o)">{{o}}</div></div>
+      <div class="g2" style="margin-top:10px">
+        <div class="f"><label>Other</label><input type="text" [value]="form.internetOther" (input)="patch('internetOther',$any($event.target).value)"/></div>
+        <div class="f"><label>Last 2 Apps Downloaded</label><input type="text" [value]="form.lastApps" (input)="patch('lastApps',$any($event.target).value)"/></div>
+      </div>
+    </div>
+
+    <!-- Q8 Kids -->
+    <div class="q-block mb">
+      <div class="q-label"><span class="q-num">8</span>Kids Activities</div>
+      <div class="cg"><div class="cp" *ngFor="let o of kidsOptions" [class.on]="isOn('kidsActivities',o)" (click)="toggle('kidsActivities',o)">{{o}}</div></div>
+      <div class="f" style="margin-top:10px"><label>Other</label><input type="text" [value]="form.kidsOther" (input)="patch('kidsOther',$any($event.target).value)"/></div>
+    </div>
+
+    <!-- Q9 Travel -->
+    <div class="q-block mb">
+      <div class="q-label"><span class="q-num">9</span>Travel Abroad</div>
+      <div class="rg"><div class="rp" *ngFor="let o of travelOptions" [class.on]="form.travelAbroad===o" (click)="patch('travelAbroad',o)">{{o}}</div></div>
+    </div>
+
+    <!-- Q10 Cars -->
+    <div class="q-block mb">
+      <div class="q-label"><span class="q-num">10</span>Cars Driven</div>
+      <div class="f"><input type="text" [value]="form.carsDriven" (input)="patch('carsDriven',$any($event.target).value)" placeholder="e.g. BMW 5 Series, Mercedes E Class"/></div>
+    </div>
+
+    <!-- Q11 Clubs -->
+    <div class="q-block mb">
+      <div class="q-label"><span class="q-num">11</span>Club Memberships</div>
+      <div class="rg">
+        <div class="rp" [class.on]="form.clubMembership==='Yes'" (click)="patch('clubMembership','Yes')">Yes</div>
+        <div class="rp" [class.on]="form.clubMembership==='No'"  (click)="patch('clubMembership','No')">No</div>
+      </div>
+      <div class="f" style="margin-top:10px" *ngIf="form.clubMembership==='Yes'">
+        <label>Club Names</label>
+        <input type="text" [value]="form.clubNames" (input)="patch('clubNames',$any($event.target).value)"/>
+      </div>
+    </div>
+
+    <!-- Q12 Social Media -->
+    <div class="q-block">
+      <div class="q-label"><span class="q-num">12</span>Social Media</div>
+      <div class="cg"><div class="cp" *ngFor="let o of socialOptions" [class.on]="isOn('socialMedia',o)" (click)="toggle('socialMedia',o)">{{o}}</div></div>
+      <div class="f" style="margin-top:10px"><label>Other</label><input type="text" [value]="form.socialOther" (input)="patch('socialOther',$any($event.target).value)"/></div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,121 @@
+<div class="cs-wrap">
+
+  <!-- ── Search Bar ── -->
+  <div class="cs-search-row" [class.cs-has-value]="isLoaded">
+
+    <div class="cs-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+    </div>
+
+    <input
+      #searchInput
+      class="cs-input"
+      type="text"
+      [value]="searchTerm"
+      (input)="onInput($any($event.target).value)"
+      placeholder="Search existing booking — name, mobile, flat no., booking ID…"
+      autocomplete="off"
+      [readonly]="isLoaded"
+    />
+
+    <!-- Spinner while searching -->
+    <span class="cs-spinner" *ngIf="isSearching"></span>
+
+    <!-- Clear button once a record is loaded -->
+    <button class="cs-clear-btn" *ngIf="isLoaded" (click)="clear()" title="Clear and start new">
+      ✕ Clear
+    </button>
+
+  </div>
+
+  <!-- ── Dropdown Results ── -->
+  <div class="cs-dropdown" *ngIf="isOpen && !isLoaded">
+
+    <!-- Loading row -->
+    <div class="cs-row cs-loading" *ngIf="isSearching">
+      <span class="cs-spin-sm"></span> Searching NetSuite…
+    </div>
+
+    <!-- No results -->
+    <div class="cs-row cs-empty" *ngIf="noResults && !isSearching">
+      No booking records found for "<strong>{{ searchTerm }}</strong>"
+    </div>
+
+    <!-- Error -->
+    <div class="cs-row cs-err" *ngIf="searchError">
+      ⚠ {{ searchError }}
+    </div>
+
+    <!-- Results list -->
+    <div
+      class="cs-result-row"
+      *ngFor="let r of results"
+      (click)="selectResult(r)"
+    >
+      <div class="cs-result-left">
+        <span class="cs-result-name">{{ r.customerName }}</span>
+        <span class="cs-result-sub">
+          {{ r.projectName || '—' }}
+          <ng-container *ngIf="r.wing || r.flatNo"> · {{ r.wing }}-{{ r.flatNo }}</ng-container>
+        </span>
+      </div>
+      <div class="cs-result-right">
+        <span class="cs-result-mobile">{{ r.mobile }}</span>
+        <span class="cs-result-id">ID {{ r.bookingId }}</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Loaded Record Badge ── -->
+  <div class="cs-loaded-badge" *ngIf="isLoaded && selectedRecord">
+    <div class="cs-loaded-left">
+      <span class="cs-badge-icon">📋</span>
+      <div>
+        <div class="cs-badge-name">{{ selectedRecord.customerName }}</div>
+        <div class="cs-badge-sub">
+          Booking #{{ selectedRecord.bookingId }}
+          <ng-container *ngIf="selectedRecord.projectName"> · {{ selectedRecord.projectName }}</ng-container>
+          <ng-container *ngIf="selectedRecord.wing || selectedRecord.flatNo">
+            · {{ selectedRecord.wing }}-{{ selectedRecord.flatNo }}
+          </ng-container>
+        </div>
+      </div>
+    </div>
+    <div class="cs-loaded-right">
+      <span class="cs-loaded-tick">✓ Form populated</span>
+    </div>
+  </div>
+
+  <!-- ── Loading spinner while fetching full record ── -->
+  <div class="cs-loading-record" *ngIf="isLoadingDetail">
+    <span class="cs-spin-sm"></span>
+    Loading booking record…
+  </div>
+
+  <!-- ── Load error ── -->
+  <div class="cs-load-error" *ngIf="loadError">
+    ⚠ {{ loadError }}
+    <button (click)="clear()">Dismiss</button>
+  </div>
+
+  <!-- ── Confirmation modal ── -->
+  <div class="cs-modal-backdrop" *ngIf="showConfirm">
+    <div class="cs-modal">
+      <div class="cs-modal-icon">⚠</div>
+      <h4>Overwrite current form data?</h4>
+      <p>
+        The form already has unsaved data. Loading
+        <strong>{{ pendingRecord?.displayLabel }}</strong>
+        will replace all current entries.
+      </p>
+      <div class="cs-modal-actions">
+        <button class="cs-btn-cancel" (click)="cancelLoad()">Cancel</button>
+        <button class="cs-btn-confirm" (click)="confirmLoad()">Yes, load record</button>
+      </div>
+    </div>
+  </div>
+
+</div>

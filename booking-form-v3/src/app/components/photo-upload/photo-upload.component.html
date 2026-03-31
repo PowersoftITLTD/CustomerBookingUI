@@ -1,0 +1,19 @@
+<div class="photo-box">
+  <div class="photo-label-top">
+    {{ label }}<span *ngIf="sublabel" class="photo-sublabel">{{ sublabel }}</span>
+    <span class="req" *ngIf="mandatory">*</span>
+  </div>
+  <div class="photo-upload" [class.has-photo]="!!previewUrl" [class.photo-error-border]="hasError || showMandatoryError" (click)="trigger()">
+    <input #fileInput type="file" accept="image/*" style="display:none" (change)="onFileChange($event)"/>
+    <img *ngIf="previewUrl" [src]="previewUrl" class="photo-preview" alt="Preview"/>
+    <div class="photo-placeholder" *ngIf="!previewUrl">
+      <div class="ph-icon">🖼</div>
+      <div class="ph-text">Tap to upload</div>
+      <div class="ph-hint">JPG / PNG · Max 5MB</div>
+    </div>
+    <div class="photo-overlay" *ngIf="previewUrl"><span>Change</span></div>
+  </div>
+  <button *ngIf="previewUrl" class="photo-clear-btn" type="button" (click)="$event.stopPropagation(); clear()">✕ Remove</button>
+  <div class="photo-err-text" *ngIf="hasError">Use JPG/PNG under 5MB</div>
+  <div class="photo-err-text" *ngIf="showMandatoryError && !previewUrl">Photo is required.</div>
+</div>

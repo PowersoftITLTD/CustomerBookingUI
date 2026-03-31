@@ -1,0 +1,132 @@
+<!-- ══ HEADER ══ -->
+<header class="site-header">
+  <div class="brand-logo">
+    <img src="https://www.powersoft.in/wp-content/uploads/2025/01/logo.png" alt="Powersoft IT Pvt. Ltd."
+      class="logo-img" />
+  </div>
+  <div class="header-title">
+    <h1>Booking Form</h1>
+    <span>25 South — Bespoke Homes by the Bay</span>
+  </div>
+  <div class="header-badge">Digital</div>
+</header>
+
+
+<!-- ══ STEPPER ══ -->
+<div class="stepper-wrap">
+
+  <div class="bottom-nav-no-border">
+ <div class="nav-left">
+    <button class="btn-draft" (click)="saveDraft()">
+      {{ draftSaved ? '✓ Saved' : 'Save Draft' }}
+    </button>
+    <button class="btn-next" *ngIf="currentStep<totalSteps" (click)="next()">Next →</button>
+    <button class="btn-submit" *ngIf="currentStep===totalSteps" (click)="submitAll()" [disabled]="submitting">
+      <span *ngIf="!submitting">{{ isEditMode ? 'Update Record ✓' : 'Submit All ✓' }}</span>
+      <span *ngIf="submitting" class="spinner-wrap">
+        <span class="spinner"></span> {{ isEditMode ? 'Updating…' : 'Submitting…' }}
+      </span>
+    </button>
+  </div>
+  </div>
+ 
+
+  <div class="stepper">
+    <div *ngFor="let step of steps" class="stepper-step" [class.active]="currentStep===step.num"
+      [class.done]="currentStep>step.num" (click)="goTo(step.num)">
+      <div class="step-circle">
+        <span *ngIf="currentStep<=step.num">{{ ['I','II','III'][step.num-1] }}</span>
+        <span *ngIf="currentStep>step.num">✓</span>
+      </div>
+      <div class="step-label">{{ step.label }}</div>
+    </div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" [style.width.%]="progressPct"></div>
+  </div>
+
+
+</div>
+
+
+
+<!-- ══ CUSTOMER SEARCH COMBO ══ -->
+<div class="customer-search-bar" *ngIf="!submitted">
+  <div class="csb-label">Load existing booking</div>
+  <app-customer-search (recordLoaded)="onRecordLoaded($event)"></app-customer-search>
+  <div class="csb-divider">— or fill in a new booking below —</div>
+</div>
+
+<!-- ══ MAIN CARD ══ -->
+<div class="main-card">
+
+  <!-- Success -->
+  <div *ngIf="submitted" class="success-screen">
+    <div class="success-icon">✓</div>
+    <h2>Booking Form Submitted</h2>
+    <p>Your application has been recorded. Our team will be in touch shortly.</p>
+  </div>
+
+  <div *ngIf="!submitted && currentStep===1"><app-section1 #section1 (applicantType)="onApplicantTypeChange($event)"></app-section1></div>
+  <div *ngIf="!submitted && currentStep===2"><app-section3></app-section3></div>
+  <div *ngIf="!submitted && currentStep===3"><app-section4 [SelectedApplicantTypeSection4]="selectedApplicantType"></app-section4></div>
+
+</div>
+
+<!-- ══ BOTTOM NAV ══ -->
+<div class="bottom-nav" *ngIf="!submitted">
+  <div class="nav-left">
+    <button class="btn-back" *ngIf="currentStep>1" (click)="back()">← Back</button>
+  </div>
+  <div class="nav-info">
+    <strong>{{ steps[currentStep-1].label }}</strong>
+    <span>Step {{ currentStep }} of {{ totalSteps }}</span>
+  </div>
+  <div class="nav-right">
+    <button class="btn-draft" (click)="saveDraft()">
+      {{ draftSaved ? '✓ Saved' : 'Save Draft' }}
+    </button>
+    <button class="btn-next" *ngIf="currentStep<totalSteps" (click)="next()">Next →</button>
+    <button class="btn-submit" *ngIf="currentStep===totalSteps" (click)="submitAll()" [disabled]="submitting">
+      <span *ngIf="!submitting">{{ isEditMode ? 'Update Record ✓' : 'Submit All ✓' }}</span>
+      <span *ngIf="submitting" class="spinner-wrap">
+        <span class="spinner"></span> {{ isEditMode ? 'Updating…' : 'Submitting…' }}
+      </span>
+    </button>
+  </div>
+</div>
+
+<!-- Error toast -->
+<div class="error-toast" *ngIf="submitError">⚠ {{ submitError }}</div>
+
+<!-- Validation modal -->
+<div class="validation-modal-backdrop" *ngIf="showValidationModal" (click)="closeValidationModal()">
+  <div class="validation-modal" (click)="$event.stopPropagation()">
+
+    <!-- Countdown ring -->
+    <div class="modal-timer-wrap">
+      <svg class="modal-timer-ring" viewBox="0 0 44 44">
+        <circle cx="22" cy="22" r="18" class="ring-bg"/>
+        <circle cx="22" cy="22" r="18" class="ring-fill"
+          [style.stroke-dashoffset]="(1 - modalCountdown/3) * 113"/>
+      </svg>
+      <span class="modal-timer-num">{{ modalCountdown }}</span>
+    </div>
+
+    <h3>Missing Required Fields</h3>
+    <p>Please fill in the following required fields before proceeding:</p>
+    <ul>
+      <li *ngFor="let field of validationMissingFields">{{ field }}</li>
+    </ul>
+    <div class="validation-modal-actions">
+      <button class="btn-next" type="button" (click)="closeValidationModal()">OK</button>
+    </div>
+    <div class="modal-auto-close-note">Closes automatically in {{ modalCountdown }}s</div>
+  </div>
+</div>
+
+<button class="theme-toggle" (click)="toggleTheme()" title="Toggle light / dark mode">
+  <span class="tog-icon">{{ isDark ? '🌙' : '☀️' }}</span>
+  <span class="tog-label">{{ isDark ? 'Dark' : 'Light' }}</span>
+</button>

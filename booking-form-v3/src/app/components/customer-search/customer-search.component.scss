@@ -1,0 +1,331 @@
+// ══════════════════════════════════════════════════════
+// Customer Search Combo — styles
+// Uses CSS vars from global styles.scss
+// ══════════════════════════════════════════════════════
+
+.cs-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+// ── Search bar ────────────────────────────────────────
+.cs-search-row {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--gold3);
+  border-radius: var(--r);
+  background: #fff;
+  padding: 0 12px 0 10px;
+  gap: 8px;
+  transition: border-color .2s, box-shadow .2s;
+
+  &:focus-within {
+    border-color: var(--gold2);
+    box-shadow: 0 0 0 3px rgba(184,151,90,.15);
+  }
+
+  &.cs-has-value {
+    border-color: #3a9e6e;
+    background: #f5fbf8;
+    box-shadow: 0 0 0 2px rgba(58,158,110,.1);
+  }
+}
+
+.cs-icon {
+  flex-shrink: 0;
+  width: 16px; height: 16px;
+  color: var(--gold2);
+
+  svg { width: 100%; height: 100%; }
+}
+
+.cs-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink);
+  padding: 11px 0;
+
+  &::placeholder { color: var(--muted); }
+  &[readonly]     { cursor: default; color: var(--dark); font-weight: 500; }
+}
+
+.cs-spinner {
+  flex-shrink: 0;
+  width: 14px; height: 14px;
+  border: 2px solid var(--line);
+  border-top-color: var(--gold2);
+  border-radius: 50%;
+  animation: cs-spin .7s linear infinite;
+}
+
+.cs-clear-btn {
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: .5px;
+  padding: 3px 10px;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: all .15s;
+
+  &:hover {
+    border-color: var(--error);
+    color: var(--error);
+    background: #fef5f5;
+  }
+}
+
+// ── Dropdown ──────────────────────────────────────────
+.cs-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: 0 8px 24px rgba(28,23,16,.12);
+  z-index: 1000;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.cs-row {
+  padding: 12px 14px;
+  font-size: 12px;
+  color: var(--muted);
+
+  &.cs-loading { display: flex; align-items: center; gap: 8px; }
+  &.cs-empty   { text-align: center; padding: 20px 14px; }
+  &.cs-err     { color: var(--error); }
+}
+
+.cs-result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--line);
+  transition: background .12s;
+
+  &:last-child { border-bottom: none; }
+
+  &:hover {
+    background: var(--warm);
+
+    .cs-result-name { color: var(--gold); }
+  }
+}
+
+.cs-result-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cs-result-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dark);
+  transition: color .12s;
+}
+
+.cs-result-sub {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.cs-result-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.cs-result-mobile {
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.cs-result-id {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .5px;
+}
+
+// ── Loaded badge ─────────────────────────────────────
+.cs-loaded-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: #f0faf5;
+  border: 1px solid #a8dcc2;
+  border-radius: var(--r);
+  animation: cs-fadein .25s ease;
+}
+
+.cs-loaded-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cs-badge-icon {
+  font-size: 18px;
+}
+
+.cs-badge-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.cs-badge-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.cs-loaded-right {}
+
+.cs-loaded-tick {
+  font-size: 11px;
+  font-weight: 600;
+  color: #3a9e6e;
+  letter-spacing: .3px;
+}
+
+// ── Loading record spinner ────────────────────────────
+.cs-loading-record {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 8px 2px;
+}
+
+// ── Load error ────────────────────────────────────────
+.cs-load-error {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #fef5f5;
+  border: 1px solid #f5c6cb;
+  border-radius: var(--r);
+  font-size: 12px;
+  color: var(--error);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  button {
+    border: 1px solid var(--error);
+    background: #fff;
+    color: var(--error);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: var(--r);
+    cursor: pointer;
+  }
+}
+
+// ── Confirmation modal ────────────────────────────────
+.cs-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(28,23,16,.45);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: cs-fadein .15s ease;
+}
+
+.cs-modal {
+  background: #fff;
+  border-radius: 4px;
+  padding: 32px 28px 24px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(28,23,16,.25);
+
+  .cs-modal-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+
+  h4 {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--dark);
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+}
+
+.cs-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.cs-btn-cancel {
+  padding: 8px 22px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 12px;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: all .15s;
+
+  &:hover { border-color: var(--gold3); color: var(--gold); }
+}
+
+.cs-btn-confirm {
+  padding: 8px 22px;
+  border: 1px solid var(--gold);
+  background: var(--gold);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 12px;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: background .15s;
+
+  &:hover { background: var(--gold2); border-color: var(--gold2); }
+}
+
+// ── Shared small spinner ──────────────────────────────
+.cs-spin-sm {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border: 2px solid var(--line);
+  border-top-color: var(--gold2);
+  border-radius: 50%;
+  animation: cs-spin .7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes cs-spin    { to { transform: rotate(360deg); } }
+@keyframes cs-fadein  { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }

@@ -1,0 +1,49 @@
+// spinner for submit button
+.spinner-wrap { display:inline-flex; align-items:center; gap:8px; }
+.spinner {
+  width:14px; height:14px; border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff; border-radius:50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Validation modal countdown timer ──────────────────────────────
+.modal-timer-wrap {
+  position: relative;
+  width: 52px; height: 52px;
+  margin: 0 auto 16px;
+}
+.modal-timer-ring {
+  width: 52px; height: 52px;
+  transform: rotate(-90deg);   // start arc from top
+}
+.ring-bg {
+  fill: none;
+  stroke: #e8e2d8;
+  stroke-width: 4;
+}
+.ring-fill {
+  fill: none;
+  stroke: #c0392b;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 113;       // 2π × r=18 ≈ 113
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.9s linear;
+}
+.modal-timer-num {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  font-weight: 700;
+  color: #c0392b;
+  line-height: 1;
+}
+.modal-auto-close-note {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 12px;
+  color: #9e9384;
+  letter-spacing: 0.3px;
+}
