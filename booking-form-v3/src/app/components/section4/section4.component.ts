@@ -16,10 +16,10 @@ export class Section4Component implements OnInit, OnChanges  {
 
 ngOnChanges(changes: SimpleChanges) {
     if (changes['SelectedApplicantTypeSection4']) {
-      // console.log(
-      //   'Applicant type in section4:',
-      //   changes['SelectedApplicantTypeSection4'].currentValue
-      // );
+      console.log(
+        'Applicant type in section4:',
+        changes['SelectedApplicantTypeSection4'].currentValue
+      );
 
       this.endUserType = changes['SelectedApplicantTypeSection4'].currentValue;
     }

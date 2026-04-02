@@ -7,6 +7,56 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+// ── Full-page overlay spinner ──────────────────────────────────────
+.page-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 12, 8, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInOverlay .18s ease;
+}
+@keyframes fadeInOverlay { from { opacity: 0 } to { opacity: 1 } }
+
+.overlay-spinner-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.overlay-ring {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: transparent;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-ring-arc {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 4px solid rgba(255,255,255,.15);
+  border-top-color: #C9A96E;   // gold accent
+  animation: spin .75s linear infinite;
+  position: absolute;
+}
+
+.overlay-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #f5f0e8;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
 // ── Validation modal countdown timer ──────────────────────────────
 .modal-timer-wrap {
   position: relative;

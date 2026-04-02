@@ -291,7 +291,6 @@
       </div>
     </div>
     <div class="g3" *ngIf="form.funding.loanOpted==='Yes'">
-
       <div class="f">
         <label>Bank / FI Name</label>
         <input
@@ -325,9 +324,6 @@
           (blur)="onFundingBlur('homeLoan')"/>
         <div class="field-error" *ngIf="isFundingFieldInvalid('homeLoan')">Home Loan % is required.</div>
       </div>
-      <div class="f"><label>Bank / FI Name</label><input id="bank-name" type="text" [value]="form.funding.bankName"   (input)="patchFunding('bankName',$any($event.target).value)"/></div>
-      <div class="f"><label>Own Contribution %</label><input id="home-loan" type="text" [value]="form.funding.ownContrib" (input)="patchFunding('ownContrib',$any($event.target).value)"/></div>
-      <div class="f"><label>Home Loan %</label><input id="own-contribution" type="text" [value]="form.funding.homeLoan"      (input)="patchFunding('homeLoan',$any($event.target).value)"/></div>
     </div>
   </div>
 

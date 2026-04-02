@@ -17,10 +17,14 @@
 
   <div class="bottom-nav-no-border">
  <div class="nav-left">
-    <button class="btn-draft" (click)="saveDraft()">
-      {{ draftSaved ? '✓ Saved' : 'Save Draft' }}
+    <button class="btn-draft" (click)="saveDraft()" [disabled]="isSavingDraft">
+      <span *ngIf="!isSavingDraft">{{ draftSaved ? '✓ Saved' : 'Save Draft' }}</span>
+      <span *ngIf="isSavingDraft" class="spinner-wrap"><span class="spinner"></span> Saving…</span>
     </button>
-    <button class="btn-next" *ngIf="currentStep<totalSteps" (click)="next()">Next →</button>
+    <button class="btn-next" *ngIf="currentStep<totalSteps" (click)="next()" [disabled]="isNavigating">
+      <span *ngIf="!isNavigating">Next →</span>
+      <span *ngIf="isNavigating" class="spinner-wrap"><span class="spinner"></span> Loading…</span>
+    </button>
     <button class="btn-submit" *ngIf="currentStep===totalSteps" (click)="submitAll()" [disabled]="submitting">
       <span *ngIf="!submitting">{{ isEditMode ? 'Update Record ✓' : 'Submit All ✓' }}</span>
       <span *ngIf="submitting" class="spinner-wrap">
@@ -54,7 +58,10 @@
 <!-- ══ CUSTOMER SEARCH COMBO ══ -->
 <div class="customer-search-bar" *ngIf="!submitted">
   <div class="csb-label">Load existing booking</div>
-  <app-customer-search (recordLoaded)="onRecordLoaded($event)"></app-customer-search>
+  <app-customer-search
+    (recordLoaded)="onRecordLoaded($event)"
+    (loading)="onLoadingChange($event)">
+  </app-customer-search>
   <div class="csb-divider">— or fill in a new booking below —</div>
 </div>
 
@@ -84,10 +91,14 @@
     <span>Step {{ currentStep }} of {{ totalSteps }}</span>
   </div>
   <div class="nav-right">
-    <button class="btn-draft" (click)="saveDraft()">
-      {{ draftSaved ? '✓ Saved' : 'Save Draft' }}
+    <button class="btn-draft" (click)="saveDraft()" [disabled]="isSavingDraft">
+      <span *ngIf="!isSavingDraft">{{ draftSaved ? '✓ Saved' : 'Save Draft' }}</span>
+      <span *ngIf="isSavingDraft" class="spinner-wrap"><span class="spinner"></span> Saving…</span>
     </button>
-    <button class="btn-next" *ngIf="currentStep<totalSteps" (click)="next()">Next →</button>
+    <button class="btn-next" *ngIf="currentStep<totalSteps" (click)="next()" [disabled]="isNavigating">
+      <span *ngIf="!isNavigating">Next →</span>
+      <span *ngIf="isNavigating" class="spinner-wrap"><span class="spinner"></span> Loading…</span>
+    </button>
     <button class="btn-submit" *ngIf="currentStep===totalSteps" (click)="submitAll()" [disabled]="submitting">
       <span *ngIf="!submitting">{{ isEditMode ? 'Update Record ✓' : 'Submit All ✓' }}</span>
       <span *ngIf="submitting" class="spinner-wrap">
@@ -99,6 +110,20 @@
 
 <!-- Error toast -->
 <div class="error-toast" *ngIf="submitError">⚠ {{ submitError }}</div>
+
+<!-- ══ FULL-PAGE OVERLAY SPINNER ══ -->
+<div class="page-overlay" *ngIf="isLoadingData || isNavigating || isSavingDraft">
+  <div class="overlay-spinner-wrap">
+    <div class="overlay-ring">
+      <div class="overlay-ring-arc"></div>
+    </div>
+    <div class="overlay-label">
+      <span *ngIf="isLoadingData">Loading record…</span>
+      <span *ngIf="isNavigating && !isLoadingData">Please wait…</span>
+      <span *ngIf="isSavingDraft && !isNavigating && !isLoadingData">Saving draft…</span>
+    </div>
+  </div>
+</div>
 
 <!-- Validation modal -->
 <div class="validation-modal-backdrop" *ngIf="showValidationModal" (click)="closeValidationModal()">
@@ -125,8 +150,3 @@
     <div class="modal-auto-close-note">Closes automatically in {{ modalCountdown }}s</div>
   </div>
 </div>
-
-<button class="theme-toggle" (click)="toggleTheme()" title="Toggle light / dark mode">
-  <span class="tog-icon">{{ isDark ? '🌙' : '☀️' }}</span>
-  <span class="tog-label">{{ isDark ? 'Dark' : 'Light' }}</span>
-</button>

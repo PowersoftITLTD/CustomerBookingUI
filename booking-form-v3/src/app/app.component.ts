@@ -18,14 +18,14 @@ export class AppComponent implements OnInit {
   submitted    = false;
   submitError  = '';
   selectedApplicantType:string = '';
-  draftSaved   = false;
+  draftSaved     = false;
+  isLoadingData  = false;   // overlay: booking record fetch
+  isNavigating   = false;   // overlay: Next / step change
+  isSavingDraft  = false;   // Save Draft button spinner
   showValidationModal = false;
   validationMissingFields: string[] = [];
   modalCountdown = 3;
   private modalTimer: any = null;
-
-    isDark = false;
-
 
   // @Input() applicantSelectedType = new EventEmitter();
   @Input() applicantType: any;
@@ -51,22 +51,30 @@ export class AppComponent implements OnInit {
   get isEditMode(): boolean { return this.formService.isEditMode; }
 
   onRecordLoaded(rec: BookingRecord): void {
-    // Scroll to top so user sees the populated form from step 1
     window.scrollTo({ top: 0, behavior: 'smooth' });
     console.log('✓ Loaded booking record:', rec.bookingId, '| Customer:', rec.customerName);
   }
 
-goTo(step: number): void {
- if (step > this.currentStep && this.currentStep === 1 && this.section1) {
-    if (!this.validateSection1BeforeProceeding()) return;
- }
- if (step > this.currentStep && this.currentStep === 2 && this.section3) {
-    if (!this.validateSection3BeforeProceeding()) return;
- }
+  onLoadingChange(loading: boolean): void {
+    this.isLoadingData = loading;
+    if (!loading) window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
+goTo(step: number): void {
+  if (step > this.currentStep && this.currentStep === 1 && this.section1) {
+    if (!this.validateSection1BeforeProceeding()) return;
+  }
+  if (step > this.currentStep && this.currentStep === 2 && this.section3) {
+    if (!this.validateSection3BeforeProceeding()) return;
+  }
+
+  this.isNavigating = true;
+  setTimeout(() => {
     this.formService.goToStep(step);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+    this.isNavigating = false;
+  }, 350);
+}
 
 next(): void {
   this.goTo(this.currentStep + 1);
@@ -82,20 +90,6 @@ scrollToField(fieldId: string) {
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     (el as HTMLInputElement).focus();
   }, 120);
-}
-
-
-
-toggleTheme(): void {
-  const next = this.isDark ? 'light' : 'dark';
-  this.applyTheme(next);
-  localStorage.setItem('25s-theme', next);
-}
-
-
-private applyTheme(theme: string): void {
-  this.isDark = theme === 'dark';
-  document.documentElement.setAttribute('data-theme', theme);
 }
 
 //   next(): void { 
@@ -123,9 +117,13 @@ private applyTheme(theme: string): void {
   back(): void { this.goTo(this.currentStep - 1); }
 
   saveDraft(): void {
+    this.isSavingDraft = true;
     this.formService.saveDraft();
     this.draftSaved = true;
-    setTimeout(() => this.draftSaved = false, 2500);
+    setTimeout(() => {
+      this.isSavingDraft = false;
+      this.draftSaved = false;
+    }, 1500);
   }
 
   get progressPct(): number {

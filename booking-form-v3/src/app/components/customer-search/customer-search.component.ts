@@ -16,6 +16,7 @@ import { BookingRecord } from '../../models/booking-form.model';
 export class CustomerSearchComponent implements OnInit, OnDestroy {
 
   @Output() recordLoaded = new EventEmitter<BookingRecord>();
+  @Output() loading       = new EventEmitter<boolean>();
   @ViewChild('searchInput') searchInputRef!: ElementRef<HTMLInputElement>;
 
   // Search input binding
@@ -125,12 +126,14 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
     this.isLoaded        = false;
     this.loadError       = '';
     this.selectedRecord  = rec;
+    this.loading.emit(true);          // ← tell parent: show overlay spinner
 
     this.ns.loadBookingRecord(rec.bookingId).subscribe({
       next: (full: BookingRecord) => {
         this.isLoadingDetail = false;
         this.isLoaded        = true;
         this.selectedRecord  = full;
+        this.loading.emit(false);     // ← hide overlay spinner
 
         // Bind all sections back into the form service
         this.svc.loadFromBookingRecord(full);
@@ -140,6 +143,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.isLoadingDetail = false;
         this.loadError       = `Could not load record: ${err.message}`;
+        this.loading.emit(false);     // ← hide overlay spinner on error
       }
     });
   }
