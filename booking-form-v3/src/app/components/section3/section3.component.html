@@ -32,12 +32,14 @@
                 <input type="text"
                   [value]="m.name"
                   [class.error]="m.relation === 'Self' && isSelfFieldInvalid('name')"
+                  oninput="this.value=this.value.replace(/[^a-zA-Z\s.\x27\x60]/g,'')"
                   (input)="patchFamily(i,'name',$any($event.target).value)"/>
               </td>
               <td>
-                <input type="text"
+                <input type="text" inputmode="numeric" maxlength="3"
                   [value]="m.age"
                   [class.error]="m.relation === 'Self' && isSelfFieldInvalid('age')"
+                  oninput="this.value=this.value.replace(/[^0-9]/g,'')"
                   (input)="patchFamily(i,'age',$any($event.target).value)"
                   style="width:50px"/>
               </td>
@@ -61,12 +63,14 @@
                 <input type="text"
                   [value]="m.occupation"
                   [class.error]="m.relation === 'Self' && isSelfFieldInvalid('occupation')"
+                  oninput="this.value=this.value.replace(/[^a-zA-Z\s.\x27\x60]/g,'')"
                   (input)="patchFamily(i,'occupation',$any($event.target).value)"/>
               </td>
               <td>
                 <input type="text"
                   [value]="m.placeOfOccupation"
                   [class.error]="m.relation === 'Self' && isSelfFieldInvalid('placeOfOccupation')"
+                  oninput="this.value=this.value.replace(/[^a-zA-Z\s.\x27\x60-]/g,'')"
                   (input)="patchFamily(i,'placeOfOccupation',$any($event.target).value)"/>
               </td>
             </tr>

@@ -14,6 +14,8 @@ export class SignaturePadComponent implements AfterViewInit, OnDestroy {
 
   @Input() label     = '';
   @Input() mandatory = false;
+  /** Existing signature URL from NetSuite — shown as preview until user re-signs */
+  @Input() existingUrl: string | null = null;
 
   @Output() signed  = new EventEmitter<string>();
   @Output() cleared = new EventEmitter<void>();
@@ -21,6 +23,11 @@ export class SignaturePadComponent implements AfterViewInit, OnDestroy {
   isSigned   = false;
   hasError   = false;
   statusText = 'Draw signature here';
+
+  /** True when NS sig URL exists and user hasn’t re-signed yet */
+  get showExistingPreview(): boolean {
+    return !!this.existingUrl && !this.isSigned;
+  }
 
   private ctx!: CanvasRenderingContext2D;
   private drawing = false;
@@ -157,13 +164,15 @@ export class SignaturePadComponent implements AfterViewInit, OnDestroy {
   clear(): void {
     const c = this.canvasRef.nativeElement;
     this.ctx.clearRect(0, 0, c.width, c.height);
-    this.isSigned = false; this.hasError = false;
+    this.isSigned   = false;
+    this.hasError   = false;
     this.statusText = 'Draw signature here';
+    this.existingUrl = null;   // ← also clear the NS preview so canvas becomes active
     this.cleared.emit();
   }
 
   validate(): boolean {
-    if (this.mandatory && !this.isSigned) {
+    if (this.mandatory && !this.isSigned && !this.existingUrl) {
       this.hasError = true;
       this.statusText = '⚠ Signature required';
       return false;

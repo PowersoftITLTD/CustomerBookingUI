@@ -1,0 +1,40 @@
+# ── Angular build cache (auto-generated, machine-specific) ──────────
+.angular/
+
+# ── Compiled output ──────────────────────────────────────────────────
+/dist/
+/tmp/
+/out-tsc/
+
+# ── Node modules (always reinstall via npm install) ──────────────────
+/node_modules/
+
+# ── NPM / Yarn ───────────────────────────────────────────────────────
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# ── IDE / Editor files ───────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ── OS junk ──────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Environment files (contain secrets) ─────────────────────────────
+src/environments/environment*.ts
+
+# ── Compressed source backup ─────────────────────────────────────────
+*.7z
+*.zip
+*.rar
+
+# ── Local draft / test files ─────────────────────────────────────────
+*.local

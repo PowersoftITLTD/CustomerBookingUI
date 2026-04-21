@@ -142,7 +142,7 @@ export class CustomerSearchComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isLoadingDetail = false;
-        this.loadError       = `Could not load record: ${err.message}`;
+        this.loadError       = 'Could not load record: ' + err.message;
         this.loading.emit(false);     // ← hide overlay spinner on error
       }
     });

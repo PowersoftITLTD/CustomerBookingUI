@@ -1,10 +1,16 @@
-<div class="sig-pad-wrap" [class.signed]="isSigned" [class.sig-error]="hasError">
+<div class="sig-pad-wrap" [class.signed]="isSigned || showExistingPreview" [class.sig-error]="hasError">
   <div class="sig-label" *ngIf="label">
     {{ label }}<span class="sig-req" *ngIf="mandatory"> *</span>
   </div>
   <div class="sig-canvas-outer">
-    <canvas #sigCanvas class="sig-canvas"></canvas>
-    <div class="sig-placeholder" *ngIf="!isSigned">
+    <!-- Show existing NS signature URL as image preview -->
+    <img *ngIf="showExistingPreview"
+         [src]="existingUrl"
+         alt="Existing signature"
+         style="width:100%;height:100px;object-fit:contain;background:#faf7f0;display:block;"/>
+    <!-- Canvas for new signature (hidden when showing existing preview) -->
+    <canvas #sigCanvas class="sig-canvas" [style.display]="showExistingPreview ? 'none' : 'block'"></canvas>
+    <div class="sig-placeholder" *ngIf="!isSigned && !showExistingPreview">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
         <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
       </svg>
@@ -12,7 +18,11 @@
     </div>
   </div>
   <div class="sig-footer">
-    <span class="sig-status" [class.ok]="isSigned" [class.err]="hasError">{{ statusText }}</span>
-    <button class="sig-clear-btn" type="button" *ngIf="isSigned" (click)="clear()">✕ Clear</button>
+    <span class="sig-status" [class.ok]="isSigned || showExistingPreview" [class.err]="hasError">
+      {{ showExistingPreview ? '✓ Signed (from record)' : statusText }}
+    </span>
+    <button class="sig-clear-btn" type="button"
+            *ngIf="isSigned || showExistingPreview"
+            (click)="clear()">✕ Clear</button>
   </div>
 </div>

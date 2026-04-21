@@ -315,6 +315,13 @@ hr { border: none; border-top: 1px solid var(--line); margin: 24px 0; }
   color: var(--ink); cursor: pointer; border-radius: var(--r); transition: all .2s;
   &:hover { background: var(--dark); color: var(--cream); border-color: var(--dark); }
 }
+.btn-sample-data {
+  padding: 8px 18px; background: #eef6ff; border: 1px dashed #5b8fd6;
+  font-family: var(--sans); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: #3a6bb5; cursor: pointer; border-radius: var(--r); transition: all .2s;
+  margin-left: 10px;
+  &:hover { background: #dbeafe; border-style: solid; }
+}
 .btn-next {
   padding: 11px 32px; background: linear-gradient(135deg, var(--gold), var(--gold3));
   border: none; font-family: var(--sans); font-size: 10px; letter-spacing: 2px;
@@ -358,6 +365,22 @@ hr { border: none; border-top: 1px solid var(--line); margin: 24px 0; }
 // ── Mobile Duplicate Check ──────────────────────────
 .mobile-field-wrap {
   position: relative;
+}
+
+.same-mobile-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 8px;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--muted);
+
+  input {
+    width: auto;
+    margin: 0;
+  }
 }
 
 .mobile-input-row {
@@ -546,6 +569,68 @@ hr { border: none; border-top: 1px solid var(--line); margin: 24px 0; }
   margin-bottom: 2px;
   white-space: nowrap;
 }
+
+// ── KYC Cell — inline preview after upload ───────────
+.kyc-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  max-width: 90px;
+  margin: 0 auto;
+
+  &.kyc-pdf-preview {
+    border: 1px dashed var(--line);
+    border-radius: 3px;
+    padding: 6px 4px;
+    background: var(--warm);
+  }
+}
+
+.kyc-reupload-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+}
+
+.kyc-replace-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9px;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--gold2);
+  cursor: pointer;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 3px 6px;
+  background: #fff;
+  transition: all .15s;
+  input[type=file] { display: none; }
+
+  &:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--warm);
+  }
+}
+
+.kyc-remove-btn {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  border-radius: 2px;
+  transition: color .15s;
+
+  &:hover { color: var(--error); }
+}
 input.error,
 select.error,
 textarea.error {
@@ -608,4 +693,86 @@ textarea.error {
 .validation-modal-actions {
   display: flex;
   justify-content: flex-end;
+}
+
+// ── KYC Image Lightbox ──────────────────────────────
+.kyc-lightbox-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.82);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: lbFadeIn .15s ease;
+
+  @keyframes lbFadeIn { from { opacity: 0 } to { opacity: 1 } }
+}
+
+.kyc-lightbox-box {
+  background: #fff;
+  border-radius: 6px;
+  max-width: 90vw;
+  width: 560px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.5);
+  overflow: hidden;
+  animation: lbSlideUp .18s ease;
+
+  @keyframes lbSlideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+}
+
+.kyc-lightbox-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--warm);
+  border-bottom: 1px solid var(--line);
+
+  .kyc-lightbox-label {
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--gold2);
+    font-weight: 600;
+  }
+
+  .kyc-lightbox-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .kyc-lightbox-open {
+    font-size: 11px;
+    color: var(--gold2);
+    text-decoration: none;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 3px 8px;
+    background: #fff;
+    &:hover { border-color: var(--gold); color: var(--gold); }
+  }
+
+  .kyc-lightbox-close {
+    border: none;
+    background: none;
+    font-size: 18px;
+    color: var(--muted);
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 2px;
+    transition: color .15s, background .15s;
+    &:hover { color: var(--error); background: #fff5f5; }
+  }
+}
+
+.kyc-lightbox-body {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  min-height: 200px;
 }

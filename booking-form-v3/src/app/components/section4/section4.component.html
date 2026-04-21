@@ -2,9 +2,7 @@
   <div class="part-head"><span class="part-num">IV</span><span class="part-title">KYC &amp; Document Upload</span></div>
   <div class="fb">
 
-    <div class="note">Click the file icon to upload. Accepted: <strong>PDF, JPG, PNG</strong> — max 5 MB. PAN Card is mandatory for Applicant 1 only.</div>
-
-    <!-- ══ EDIT MODE — Previously Saved Files ══ -->
+    <!-- ══ EDIT MODE — Previously Saved Files (IDs only, no base64) ══ -->
     <div class="existing-files-panel" *ngIf="isEditMode && existingSummary.length > 0">
       <div class="efp-header">
         <span class="efp-icon">🗂</span>
@@ -12,13 +10,24 @@
       </div>
       <div class="efp-tags">
         <div class="efp-tag" *ngFor="let f of existingSummary">
-          <span class="efp-doc-icon">📄</span>
-          <span class="efp-label">{{ f.label }}</span>
-          <span class="efp-id">ID: {{ f.fileId }}</span>
+          <ng-container *ngIf="f.isUrl || f.isBase64; else idTag">
+            <span class="efp-doc-icon">🖼</span>
+            <span class="efp-label">{{ f.label }}</span>
+            <a [href]="f.fileId" target="_blank" class="efp-preview-link">
+              <img [src]="f.fileId" alt="{{ f.label }}"
+                   style="height:32px;width:auto;max-width:60px;object-fit:contain;
+                          border-radius:3px;border:1px solid var(--line);vertical-align:middle;margin-left:6px;"/>
+            </a>
+          </ng-container>
+          <ng-template #idTag>
+            <span class="efp-doc-icon">📄</span>
+            <span class="efp-label">{{ f.label }}</span>
+            <span class="efp-id">ID: {{ f.fileId }}</span>
+          </ng-template>
         </div>
       </div>
       <div class="efp-note">
-        To replace a document, upload a new file in the table below — it will overwrite the existing one on save.
+        To replace a document, upload a new file below — it will overwrite the existing one on save.
         Files not re-uploaded remain unchanged.
       </div>
     </div>
@@ -28,64 +37,108 @@
       <span>ℹ No documents were previously saved for this booking.</span>
     </div>
 
-    <!-- Upload Summary (new uploads this session) -->
-    <div class="upload-summary">
-      <h5>📎 {{ isEditMode ? 'New Uploads This Session' : 'Uploaded Documents' }}</h5>
-      <div class="upload-tags">
-        <span class="upload-empty" *ngIf="uploadedKeys.length===0">
-          {{ isEditMode ? 'No new files selected — existing files will be retained' : 'No documents uploaded yet' }}
-        </span>
-        <div class="upload-tag" *ngFor="let uid of uploadedKeys">
-          <span>{{ uploadedFiles[uid].type==='application/pdf' ? '📄' : '🖼' }}</span>
-          <span class="tag-name" [title]="uploadedFiles[uid].name">{{ uploadedFiles[uid].label }}</span>
-          <span class="tag-rm" (click)="removeFile(uid)">✕</span>
-        </div>
-      </div>
-    </div>
+    <!-- ══ KYC CELL TEMPLATE ══
+         Used inline in every table cell via ng-template -->
+    <ng-template #kycCell let-appIdx="appIdx" let-field="field" let-sectionLabel="sectionLabel">
+      <div class="kyc-cell">
 
-    <!-- ID Proof -->
+        <!-- ① New upload this session — show inline preview -->
+        <ng-container *ngIf="getUploadedDoc(appIdx, field) as doc; else noUpload">
+          <!-- Image preview -->
+          <div class="kyc-preview" *ngIf="isImage(doc)"
+               (click)="openPreview(doc.fileData!, 'Uploaded document')"
+               title="Click to preview" style="cursor:zoom-in">
+            <img [src]="doc.fileData!" alt="preview"
+                 style="max-width:80px;max-height:60px;object-fit:contain;border-radius:4px;display:block;margin:0 auto 4px;"/>
+          </div>
+          <!-- PDF preview -->
+          <div class="kyc-preview kyc-pdf-preview" *ngIf="isPdf(doc)">
+            <span style="font-size:22px">📄</span>
+            <span class="kyc-fname ok" style="font-size:10px;word-break:break-all;text-align:center;">{{ doc.fileName }}</span>
+          </div>
+          <!-- Re-upload button -->
+          <div class="kyc-reupload-row">
+            <label class="kyc-replace-btn">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png"
+                     (change)="onFileChange($event, appIdx, field)" style="display:none"/>
+              🔄 Replace
+            </label>
+            <button type="button" class="kyc-remove-btn" (click)="removeFile(appIdx, field)">✕</button>
+          </div>
+        </ng-container>
+
+        <!-- ② Prior NS file (no new upload yet) -->
+        <ng-template #noUpload>
+          <ng-container *ngIf="hasPriorFile(appIdx, field); else emptyCell">
+            <!-- If prior value is a URL → show image preview -->
+            <ng-container *ngIf="priorIsUrl(appIdx, field); else priorIdBadge">
+              <div class="kyc-preview"
+                   (click)="openPreview(existingFileId(appIdx, field)!, 'NS file preview')"
+                   title="Click to preview" style="cursor:zoom-in">
+                <img [src]="existingFileId(appIdx, field)!" alt="on file"
+                     style="max-width:80px;max-height:60px;object-fit:contain;border-radius:4px;display:block;margin:0 auto 4px;"/>
+              </div>
+            </ng-container>
+            <!-- If prior value is a bare ID → show ✓ On file badge -->
+            <ng-template #priorIdBadge>
+              <div class="kyc-prior-badge" [title]="'File Cabinet ID: ' + existingFileId(appIdx, field)">
+                ✓ On file
+              </div>
+            </ng-template>
+            <!-- Replace link -->
+            <label class="kyc-replace-btn" style="margin-top:4px">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png"
+                     (change)="onFileChange($event, appIdx, field)" style="display:none"/>
+              🔄 Replace
+            </label>
+          </ng-container>
+
+          <!-- ③ Empty — no prior file, no new upload yet -->
+          <ng-template #emptyCell>
+            <label class="kyc-upload-btn">
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png"
+                     (change)="onFileChange($event, appIdx, field)"/>
+              <div class="kyc-doc-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                <div class="doc-tick">✓</div>
+              </div>
+              <div class="kyc-fname">Upload</div>
+            </label>
+          </ng-template>
+        </ng-template>
+
+      </div>
+    </ng-template>
+
+    <!-- ══ ID & SIGNATURE PROOF ══ -->
     <div class="kyc-sec-head">
       <div class="ksh-icon">🪪</div>
-      <div><h4>ID &amp; Signature Proof</h4><p>Applicant 1 PAN is mandatory · Other applicants are optional</p></div>
+      <div><h4>ID &amp; Signature Proof</h4><p>All documents are optional</p></div>
     </div>
     <div style="overflow-x:auto;margin-bottom:24px">
       <table class="kyc-table">
         <thead><tr>
           <th style="width:80px">Applicant</th>
-          <th *ngFor="let f of idFields">{{f.label}}<span *ngIf="f.key==='pan'" class="kyc-req">Applicant 1 Required</span></th>
+          <th *ngFor="let f of idFields">{{f.label}}</th>
         </tr></thead>
         <tbody>
           <tr *ngFor="let app of applicantLabels; let i = index">
             <td class="app-label">{{app}}</td>
             <td *ngFor="let f of idFields">
-              <div class="kyc-cell">
-                <!-- Prior upload badge (edit mode only) -->
-                <div class="kyc-prior-badge" *ngIf="hasPriorFile(i, f.key) && !isUploaded(i, f.key)"
-                     [title]="'File Cabinet ID: ' + existingFileId(i, f.key)">
-                  ✓ On file
-                </div>
-                <label class="kyc-upload-btn">
-                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" (change)="onFileChange($event,i,f.key,'ID Proof',f.label)"/>
-                  <div class="kyc-doc-icon" [class.uploaded]="isUploaded(i,f.key)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <div class="doc-tick">✓</div>
-                  </div>
-                  <div class="kyc-fname" [class.ok]="isUploaded(i,f.key)">{{ isUploaded(i,f.key) ? 'Uploaded' : 'Upload' }}</div>
-                </label>
-              </div>
+              <ng-container *ngTemplateOutlet="kycCell; context: { appIdx: i, field: f.key, sectionLabel: 'ID Proof' }"></ng-container>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Address Proof -->
+    <!-- ══ ADDRESS PROOF ══ -->
     <div class="kyc-sec-head">
       <div class="ksh-icon">🏠</div>
-      <div><h4>Address Proof</h4><p>Any 1 mandatory per applicant</p></div>
+      <div><h4>Address Proof</h4><p>Recommended — any document</p></div>
     </div>
     <div style="overflow-x:auto;margin-bottom:24px">
       <table class="kyc-table">
@@ -97,24 +150,7 @@
           <tr *ngFor="let app of applicantLabels; let i = index">
             <td class="app-label">{{app}}</td>
             <td *ngFor="let f of addrFields">
-              <div class="kyc-cell">
-                <!-- Prior upload badge (edit mode only) -->
-                <div class="kyc-prior-badge" *ngIf="hasPriorFile(i, f.key) && !isUploaded(i, f.key)"
-                     [title]="'File Cabinet ID: ' + existingFileId(i, f.key)">
-                  ✓ On file
-                </div>
-                <label class="kyc-upload-btn">
-                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" (change)="onFileChange($event,i,f.key,'Address Proof',f.label)"/>
-                  <div class="kyc-doc-icon" [class.uploaded]="isUploaded(i,f.key)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <div class="doc-tick">✓</div>
-                  </div>
-                  <div class="kyc-fname" [class.ok]="isUploaded(i,f.key)">{{ isUploaded(i,f.key) ? 'Uploaded' : 'Upload' }}</div>
-                </label>
-              </div>
+              <ng-container *ngTemplateOutlet="kycCell; context: { appIdx: i, field: f.key, sectionLabel: 'Address Proof' }"></ng-container>
             </td>
           </tr>
         </tbody>
@@ -123,7 +159,7 @@
 
     <hr/>
 
-    <!-- NRI -->
+    <!-- ══ NRI DOCS ══ -->
     <div *ngIf="endUserType !== 'Resident Indian'" class="kyc-sec-head">
       <div class="ksh-icon">✈️</div>
       <div><h4>NRI / PIO / OCI Documents</h4><p>In addition to resident KYC above</p></div>
@@ -138,24 +174,7 @@
           <tr *ngFor="let app of applicantLabels; let i = index">
             <td class="app-label">{{app}}</td>
             <td *ngFor="let f of nriFields">
-              <div class="kyc-cell">
-                <!-- Prior upload badge (edit mode only) -->
-                <div class="kyc-prior-badge" *ngIf="hasPriorFile(i, f.key) && !isUploaded(i, f.key)"
-                     [title]="'File Cabinet ID: ' + existingFileId(i, f.key)">
-                  ✓ On file
-                </div>
-                <label class="kyc-upload-btn">
-                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" (change)="onFileChange($event,i,f.key,'NRI Doc',f.label)"/>
-                  <div class="kyc-doc-icon" [class.uploaded]="isUploaded(i,f.key)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <div class="doc-tick">✓</div>
-                  </div>
-                  <div class="kyc-fname" [class.ok]="isUploaded(i,f.key)">{{ isUploaded(i,f.key) ? 'Uploaded' : 'Upload' }}</div>
-                </label>
-              </div>
+              <ng-container *ngTemplateOutlet="kycCell; context: { appIdx: i, field: f.key, sectionLabel: 'NRI Doc' }"></ng-container>
             </td>
           </tr>
         </tbody>
@@ -164,7 +183,7 @@
 
     <hr/>
 
-    <!-- Company -->
+    <!-- ══ COMPANY DOCS ══ -->
     <div class="kyc-sec-head">
       <div class="ksh-icon">🏢</div>
       <div><h4>Company / Partnership / Trust / HUF</h4><p>Required for institutional bookings</p></div>
@@ -179,24 +198,7 @@
           <tr *ngFor="let app of applicantLabels; let i = index">
             <td class="app-label">{{app}}</td>
             <td *ngFor="let f of coFields">
-              <div class="kyc-cell">
-                <!-- Prior upload badge (edit mode only) -->
-                <div class="kyc-prior-badge" *ngIf="hasPriorFile(i, f.key) && !isUploaded(i, f.key)"
-                     [title]="'File Cabinet ID: ' + existingFileId(i, f.key)">
-                  ✓ On file
-                </div>
-                <label class="kyc-upload-btn">
-                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" (change)="onFileChange($event,i,f.key,'Company Doc',f.label)"/>
-                  <div class="kyc-doc-icon" [class.uploaded]="isUploaded(i,f.key)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <div class="doc-tick">✓</div>
-                  </div>
-                  <div class="kyc-fname" [class.ok]="isUploaded(i,f.key)">{{ isUploaded(i,f.key) ? 'Uploaded' : 'Upload' }}</div>
-                </label>
-              </div>
+              <ng-container *ngTemplateOutlet="kycCell; context: { appIdx: i, field: f.key, sectionLabel: 'Company Doc' }"></ng-container>
             </td>
           </tr>
         </tbody>
@@ -206,6 +208,22 @@
     <div class="sub-note" style="margin-top:16px">
       • The Intending Allottee(s) authorise the Company to approach Financial Institutions / Banks for Housing Loan processing.<br/>
       • The Intending Allottee(s) authorise the Company to collect loan disbursement cheques from the financial institution on their behalf.
+    </div>
+  </div>
+</div>
+
+<!-- ══ LIGHTBOX MODAL ══ -->
+<div class="kyc-lightbox-overlay" *ngIf="lightboxUrl !== ''" (click)="closePreview()">
+  <div class="kyc-lightbox-box" (click)="$event.stopPropagation()">
+    <div class="kyc-lightbox-header">
+      <span class="kyc-lightbox-label">{{ lightboxLabel }}</span>
+      <div class="kyc-lightbox-actions">
+        <button class="kyc-lightbox-close" type="button" (click)="closePreview()">✕</button>
+      </div>
+    </div>
+    <div class="kyc-lightbox-body">
+      <img [src]="lightboxUrl" alt="{{ lightboxLabel }}"
+           style="max-width:100%;max-height:75vh;object-fit:contain;border-radius:4px;"/>
     </div>
   </div>
 </div>

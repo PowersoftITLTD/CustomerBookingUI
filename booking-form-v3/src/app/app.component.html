@@ -16,24 +16,20 @@
 <div class="stepper-wrap">
 
   <div class="bottom-nav-no-border">
- <div class="nav-left">
-    <button class="btn-draft" (click)="saveDraft()" [disabled]="isSavingDraft">
-      <span *ngIf="!isSavingDraft">{{ draftSaved ? '✓ Saved' : 'Save Draft' }}</span>
-      <span *ngIf="isSavingDraft" class="spinner-wrap"><span class="spinner"></span> Saving…</span>
-    </button>
-    <button class="btn-next" *ngIf="currentStep<totalSteps" (click)="next()" [disabled]="isNavigating">
-      <span *ngIf="!isNavigating">Next →</span>
-      <span *ngIf="isNavigating" class="spinner-wrap"><span class="spinner"></span> Loading…</span>
-    </button>
-    <button class="btn-submit" *ngIf="currentStep===totalSteps" (click)="submitAll()" [disabled]="submitting">
-      <span *ngIf="!submitting">{{ isEditMode ? 'Update Record ✓' : 'Submit All ✓' }}</span>
-      <span *ngIf="submitting" class="spinner-wrap">
-        <span class="spinner"></span> {{ isEditMode ? 'Updating…' : 'Submitting…' }}
-      </span>
-    </button>
+    <div class="nav-left">
+      <button class="btn-next" *ngIf="currentStep<totalSteps" (click)="next()" [disabled]="isNavigating">
+        <span *ngIf="!isNavigating">Next →</span>
+        <span *ngIf="isNavigating" class="spinner-wrap"><span class="spinner"></span> Loading…</span>
+      </button>
+      <button class="btn-submit" *ngIf="currentStep===totalSteps" (click)="submitAll()" [disabled]="submitting">
+        <span *ngIf="!submitting">{{ isEditMode ? 'Update Record ✓' : 'Submit All ✓' }}</span>
+        <span *ngIf="submitting" class="spinner-wrap">
+          <span class="spinner"></span> {{ isEditMode ? 'Updating…' : 'Submitting…' }}
+        </span>
+      </button>
+    </div>
   </div>
-  </div>
- 
+
 
   <div class="stepper">
     <div *ngFor="let step of steps" class="stepper-step" [class.active]="currentStep===step.num"
@@ -55,17 +51,9 @@
 
 
 
-<!-- ══ CUSTOMER SEARCH COMBO ══ -->
-<div class="customer-search-bar" *ngIf="!submitted">
-  <div class="csb-label">Load existing booking</div>
-  <app-customer-search
-    (recordLoaded)="onRecordLoaded($event)"
-    (loading)="onLoadingChange($event)">
-  </app-customer-search>
-  <div class="csb-divider">— or fill in a new booking below —</div>
-</div>
 
 <!-- ══ MAIN CARD ══ -->
+
 <div class="main-card">
 
   <!-- Success -->
@@ -75,9 +63,11 @@
     <p>Your application has been recorded. Our team will be in touch shortly.</p>
   </div>
 
-  <div *ngIf="!submitted && currentStep===1"><app-section1 #section1 (applicantType)="onApplicantTypeChange($event)"></app-section1></div>
+  <div *ngIf="!submitted && currentStep===1"><app-section1 #section1
+      (applicantType)="onApplicantTypeChange($event)"></app-section1></div>
   <div *ngIf="!submitted && currentStep===2"><app-section3></app-section3></div>
-  <div *ngIf="!submitted && currentStep===3"><app-section4 [SelectedApplicantTypeSection4]="selectedApplicantType"></app-section4></div>
+  <div *ngIf="!submitted && currentStep===3"><app-section4
+      [SelectedApplicantTypeSection4]="selectedApplicantType"></app-section4></div>
 
 </div>
 
@@ -91,10 +81,6 @@
     <span>Step {{ currentStep }} of {{ totalSteps }}</span>
   </div>
   <div class="nav-right">
-    <button class="btn-draft" (click)="saveDraft()" [disabled]="isSavingDraft">
-      <span *ngIf="!isSavingDraft">{{ draftSaved ? '✓ Saved' : 'Save Draft' }}</span>
-      <span *ngIf="isSavingDraft" class="spinner-wrap"><span class="spinner"></span> Saving…</span>
-    </button>
     <button class="btn-next" *ngIf="currentStep<totalSteps" (click)="next()" [disabled]="isNavigating">
       <span *ngIf="!isNavigating">Next →</span>
       <span *ngIf="isNavigating" class="spinner-wrap"><span class="spinner"></span> Loading…</span>
@@ -112,7 +98,7 @@
 <div class="error-toast" *ngIf="submitError">⚠ {{ submitError }}</div>
 
 <!-- ══ FULL-PAGE OVERLAY SPINNER ══ -->
-<div class="page-overlay" *ngIf="isLoadingData || isNavigating || isSavingDraft">
+<div class="page-overlay" *ngIf="isLoadingData || isNavigating">
   <div class="overlay-spinner-wrap">
     <div class="overlay-ring">
       <div class="overlay-ring-arc"></div>
@@ -132,9 +118,8 @@
     <!-- Countdown ring -->
     <div class="modal-timer-wrap">
       <svg class="modal-timer-ring" viewBox="0 0 44 44">
-        <circle cx="22" cy="22" r="18" class="ring-bg"/>
-        <circle cx="22" cy="22" r="18" class="ring-fill"
-          [style.stroke-dashoffset]="(1 - modalCountdown/3) * 113"/>
+        <circle cx="22" cy="22" r="18" class="ring-bg" />
+        <circle cx="22" cy="22" r="18" class="ring-fill" [style.stroke-dashoffset]="(1 - modalCountdown/3) * 113" />
       </svg>
       <span class="modal-timer-num">{{ modalCountdown }}</span>
     </div>

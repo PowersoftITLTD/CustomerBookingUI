@@ -45,7 +45,27 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.formService.currentStep$.subscribe(s => this.currentStep = s);
-    this.formService.loadDraft();
+    this.nsService.setBfs(this.formService);
+
+    // ── Auto-load logic ─────────────────────────────────────────────
+    const autoId = this.formService.getAutoLoadBookingId();
+
+    if (autoId) {
+      // NetSuite: bookingId in URL → fetch real booking record
+      this.isLoadingData = true;
+      this.nsService.loadBookingRecord(autoId).subscribe({
+        next: (rec) => {
+          this.formService.loadFromBookingRecord(rec);
+          this.isLoadingData = false;
+          console.log('✓ Auto-loaded booking:', autoId);
+        },
+        error: () => { this.isLoadingData = false; }
+      });
+    } else if (!(window as any).__NS_CONFIG__) {
+      // Local dev: no NetSuite config → load sample data automatically
+      this.formService.loadSampleData();
+    }
+    // NetSuite with no bookingId → blank form for new booking
   }
 
   get isEditMode(): boolean { return this.formService.isEditMode; }
@@ -126,6 +146,11 @@ scrollToField(fieldId: string) {
     }, 1500);
   }
 
+  /** Load sample NetSuite JSON data into the form for testing prefill */
+  loadSampleData(): void {
+    this.formService.loadSampleData();
+  }
+
   get progressPct(): number {
     return [16, 50, 100][this.currentStep - 1];
   }
@@ -141,25 +166,35 @@ scrollToField(fieldId: string) {
     this.submitting  = true;
     this.submitError = '';
 
-    if (!this.formService.isApplicant1PanUploaded()) {
+    // Build payload — section1 / section3 / section4 + editBookingId
+    const payload = this.formService.buildFullPayload();
+
+    // ── Always log to console (works on both local dev and NetSuite) ──
+    console.log('\n══════════════ BOOKING FORM PAYLOAD ══════════════');
+    console.log('Mode        :', (window as any).__NS_CONFIG__ ? 'NetSuite LIVE' : 'Local DEV');
+    console.log('editBookingId:', payload.editBookingId || '(new booking)');
+    console.log('Payload JSON :\n', JSON.stringify(payload, null, 2));
+    console.log('═════════════════════════════════════════════════');
+
+    // ── Local dev: skip HTTP, show success immediately ──
+    if (!(window as any).__NS_CONFIG__) {
       this.submitting = false;
-      this.validationMissingFields = ['Applicant 1 PAN Document (KYC)'];
-      this.showModal();
-      this.submitError = 'Missing required fields.';
+      this.submitted  = true;
+      console.log('✓ [LOCAL DEV] Payload logged above. No HTTP call made.');
       return;
     }
 
-    const payload = this.formService.buildFullPayload();
-
+    // ── NetSuite: submit via HTTP ──
     this.nsService.submitBookingForm(payload).subscribe({
       next: (res) => {
         this.submitting = false;
         this.submitted  = true;
-        console.log('✓ Submitted | Customer:', res.customerId, '| Booking:', res.bookingId);
+        console.log('✓ Submitted successfully | Booking ID:', res.bookingId);
       },
       error: (err) => {
         this.submitting  = false;
-        this.submitError = err.message;
+        this.submitError = err.message || 'Submission failed. Please try again.';
+        console.error('✗ Submission error:', err);
       }
     });
   }
